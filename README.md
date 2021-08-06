@@ -1,4 +1,5 @@
 # Pythonsendemail
 
-pip install smtplib
-send email using python
+pip install smtplib \n
+send email using python \n
+Create main and use os.environ['']
