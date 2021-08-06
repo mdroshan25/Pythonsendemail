@@ -1,0 +1,62 @@
+#Create file which do not give error or restrictions in any server like vdi/vhe/iws server
+import os
+import smtplib
+
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
+def SendEmail():
+    # me == my email address
+    sender = os.environ['Sender_Account']
+    receiver = os.environ['Receiver_Account']
+    # you == recipient's email address
+    me = sender
+    you = receiver
+    print(me, you)
+    # Create message container - the correct MIME type is multipart/alternative.
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = "Cost Analysis"
+    msg['From'] = me
+    msg['To'] = you
+
+    # Create the body of the message (a plain-text and an HTML version).
+    text = "Subject: Cost Analysis\n"
+    html = """\
+    <html>
+      <head></head>
+      <body>
+        <p>
+        This is Cost Analysis using AWS Lambda Python.
+        </p>
+      </body>
+    </html>
+    """
+
+    # Record the MIME types of both parts - text/plain and text/html.
+    part1 = MIMEText(text, 'plain')
+    part2 = MIMEText(html, 'html')
+
+    # Attach parts into message container.
+    # According to RFC 2046, the last part of a multipart message, in this case
+    # the HTML message, is best and preferred.
+    msg.attach(part1)
+    msg.attach(part2)
+    try:
+
+        # Send the message via local SMTP server.
+        mail = smtplib.SMTP('smtp-mail.outlook.com', 587)
+
+        mail.ehlo()
+
+        mail.starttls()
+
+        mail.login('loginId', 'password')
+        response = mail.sendmail(me, you, msg.as_string())
+        print("Email Sent Successfully!!!")
+        mail.quit()
+    except smtplib.SMTPException as e :
+        print("Error: unable to send email due to", e)
+        error_msg = "Error: unable to send email due to "
+        error_msg = error_msg + str(e)
+    except smtplib.SMTPServerDisconnected :
+        print('Failed to connect to the server. Wrong user/password?. Bad connection settings?')
